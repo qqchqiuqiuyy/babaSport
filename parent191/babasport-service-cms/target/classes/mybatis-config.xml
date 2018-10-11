@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+
+<!-- 不能联想 -->
+<configuration>
+	<!-- setting  延迟加载 二级缓存(不用) 分布是缓存-->
+
+	<!-- 别名  type不用写包的全名 方便-->
+	<typeAliases>
+		<package name="cn.itcast.core.bean"/>
+	</typeAliases>
+
+	<!--Mapper位置配置  -->
+	
+	
+
+</configuration>
+
+
+

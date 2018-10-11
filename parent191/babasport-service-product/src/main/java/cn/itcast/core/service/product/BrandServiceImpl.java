@@ -1,0 +1,156 @@
+/**
+ * 
+ */
+package cn.itcast.core.service.product;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+
+import cn.itcast.common.page.Paginable;
+import cn.itcast.common.page.Pagination;
+import cn.itcast.core.bean.product.Brand;
+import cn.itcast.core.bean.product.BrandQuery;
+import cn.itcast.core.dao.product.BrandDao;
+import redis.clients.jedis.Jedis;
+
+
+/**
+ * @author bobo
+ *品牌管理
+ */
+@Service(value = "brandService")
+@Transactional
+public class BrandServiceImpl implements BrandService,Serializable{  
+    
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1L;
+    @Autowired
+    private BrandDao brandDao;
+    
+    //查询分页对象
+    public Paginable selectPaginationByQuery(String name,Integer isDisplay,Integer pageNo){
+	BrandQuery brandQuery = new BrandQuery();
+	//设置当前页
+	brandQuery.setPageNo(Pagination.cpn(pageNo));  //cpn方法当pageNo <= 0 的时候设置为1
+	//每页数
+	brandQuery.setPageSize(5);
+	//条件
+	StringBuilder params = new StringBuilder();
+								
+	
+	if(name != null ){
+	    brandQuery.setName(name);
+	    params.append("name=").append(name);
+	}
+	if(isDisplay != null ){
+	    brandQuery.setIsDisplay(isDisplay);
+	    params.append("&isDisplay=").append(isDisplay);
+	}else{
+	    brandQuery.setIsDisplay(1); //默认显示
+	    params.append("&isDisplay=").append(1);
+	}
+	Integer selectCount = brandDao.selectCount(brandQuery);
+	Pagination pagination = new Pagination(
+        		brandQuery.getPageNo(),	 //设置第几页
+        		brandQuery.getPageSize(), //设置每页数
+        		selectCount//设置拿到的总数量条数
+		);
+	
+	
+	//设置结果集 得到数据源
+	List<Brand> list = brandDao.selectBrandListByQuery(brandQuery);
+	pagination.setList(list);
+	
+	//分页展示
+	String url = "/brand/list.do";
+	pagination.pageView(url, params.toString());
+	
+	return pagination;
+	
+    }
+
+    /* (non-Javadoc)
+     * @see cn.itcast.core.service.product.BrandService#selectBrandById(long)
+     */
+    @Override
+    public Brand selectBrandById(long id) {
+	// TODO Auto-generated method stub
+	return brandDao.selectBrandById(id);
+    }
+
+    /* (non-Javadoc)
+     * @see cn.itcast.core.service.product.BrandService#selectBrand(long)
+     */
+    @Override
+    public Brand selectBrand(long id) {
+	// TODO Auto-generated method stub
+	return brandDao.selectBrandById(id);
+    }
+
+    /* (non-Javadoc)
+     * @see cn.itcast.core.service.product.BrandService#updateBrandById(cn.itcast.core.bean.product.Brand)
+     */
+    @Autowired
+    private Jedis jedis;
+    //修改
+    @Override
+    public void updateBrandById(Brand brand) {
+	//TODO 	
+	//修改Redis
+	jedis.hsetnx("brand", String.valueOf(brand.getId()), brand.getName());
+	brandDao.updateBrandById(brand);
+	
+    }
+
+    /* (non-Javadoc)
+     * @see cn.itcast.core.service.product.BrandService#deletes(long[])
+     */
+    @Override
+    public void deletes(long[] ids) {
+	brandDao.deletes(ids);
+	
+    }
+
+    /* (non-Javadoc)
+     * @see cn.itcast.core.service.product.BrandService#selectBrandListByQuery(cn.itcast.core.bean.product.BrandQuery)
+     */
+    @Override
+    public List<Brand> selectBrandListByQuery(Integer isDisplay) {
+	BrandQuery brandQuery = new BrandQuery();
+	brandQuery.setIsDisplay(isDisplay);
+	// TODO Auto-generated method stub
+	return brandDao.selectBrandListByQuery(brandQuery);
+    }
+    
+    
+    
+     //查询 从Redis中
+    public List<Brand> selectBrandListFromRedis(){
+	List<Brand> brands = new ArrayList<Brand>();
+	//从Redis中查询
+	Map<String, String> hgetAll = jedis.hgetAll("brand");
+	Set<Entry<String, String>> entrySet = hgetAll.entrySet();
+	for (Entry<String, String> entry : entrySet) {
+	    Brand brand = new Brand();
+	    brand.setId(Long.parseLong(entry.getKey()));
+	    brand.setName(entry.getValue());
+	    brands.add(brand);
+	}
+	return brands;
+	
+    }
+    
+    
+    
+}

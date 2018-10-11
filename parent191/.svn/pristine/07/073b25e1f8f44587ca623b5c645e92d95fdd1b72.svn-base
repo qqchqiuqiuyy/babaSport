@@ -1,0 +1,32 @@
+/**
+ * 
+ */
+package cn.itcast.core.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+
+import cn.itcast.core.bean.TestTb;
+import cn.itcast.core.dao.TestTbDao;
+
+/**
+ * @author bobo
+ *
+ */
+@Service("testTbService") //自动取名id:testTbService
+@Transactional  //整个类都是事务 如果是方法上就方法范围
+public class TestTbServiceImpl implements TestTbService{
+
+    @Autowired
+    private TestTbDao testTbDao;
+    
+    public void insertTestTb(TestTb testTb){
+	testTbDao.insetTestTb(testTb);
+    }
+    
+    
+    
+    
+}

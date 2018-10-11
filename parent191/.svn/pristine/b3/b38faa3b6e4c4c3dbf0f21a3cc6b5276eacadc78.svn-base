@@ -1,0 +1,14 @@
+/**
+ * 
+ */
+package cn.itcast.core.service;
+
+import cn.itcast.core.bean.TestTb;
+
+/**
+ * @author bobo
+ *
+ */
+public interface TestTbService {
+    public void insertTestTb(TestTb testTb);
+}

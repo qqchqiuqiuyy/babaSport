@@ -1,0 +1,24 @@
+/**
+ * 
+ */
+package cn.itcast.core.service.product;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.sun.tools.javac.util.List;
+
+import cn.itcast.common.page.Pagination;
+import cn.itcast.core.bean.product.Color;
+
+/**
+ * 商品
+ * @author bobo
+ *
+ */
+public interface ProductService{
+  //分页对象
+    public Pagination selectPagination(Integer pageNo,String name,Long brandId, Boolean isShow);
+    //颜色结果集
+    public List<Color> selectColorList();
+}
